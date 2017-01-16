@@ -19,9 +19,9 @@ public class KeyManager implements KeyListener {
 	 */
 
 	public KeyManager() {
-		keyCode = 0;
-		keyChar = "";
-		keys = new LinkedList<>();
+		this.keys = new LinkedList<>();
+		this.keyCode = -1;
+		this.keyChar = "";
 	}
 
 	/**
@@ -29,7 +29,7 @@ public class KeyManager implements KeyListener {
 	 */
 
 	public boolean isPressed(int keyCode) {
-		for (Integer i : keys) {
+		for (Integer i : getKeys()) {
 			if (i == keyCode) {
 				return true;
 			}
@@ -57,6 +57,7 @@ public class KeyManager implements KeyListener {
 		if (!keys.contains(new Integer(keyCode))) {
 			keys.add(new Integer(keyCode));
 		}
+		System.out.println(keys.toString());
 	}
 
 	/**

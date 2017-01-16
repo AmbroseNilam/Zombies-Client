@@ -14,7 +14,10 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import entity.Player;
 import exceptions.GameException;
+import graphics.Camera;
+import graphics.GameScreen;
 import input.KeyManager;
 
 public class Client extends JPanel {
@@ -29,7 +32,13 @@ public class Client extends JPanel {
 
 	private KeyManager keyManager;
 
+	private GameScreen gameScreen;
+	private Camera camera;
+
 	public Client() {
+		this.keyManager = new KeyManager();
+		//Decompressor.decompress("Textures", "Textures.idx", "Textures.dat");
+		//Decompressor.decompress("Sprites", "Sprites.idx", "Sprites.dat");
 		txtUsername = new JTextField(15);
 		txtUsername.setPreferredSize(new Dimension(150, 30));
 		txtUsername.setMargin(new Insets(5, 5, 5, 5));
@@ -44,18 +53,18 @@ public class Client extends JPanel {
 
 		btnConnect.addActionListener((e) -> {
 			try {
-				this.keyManager = new KeyManager();
 				game = new Game(getUsername(), getPassword(), this);
 				if (game.isActive) {
-					frame.addKeyListener(keyManager);
 					frame.setContentPane(this);
-					frame.setSize(450, 300);
+					frame.setSize(450 * 2, 300 * 2);
 					frame.setLocationRelativeTo(null);
 					frame.validate();
 					frame.repaint();
 					frame.toFront();
 					frame.setState(JFrame.NORMAL);
 					frame.setVisible(true);
+					gameScreen = new GameScreen(frame.getWidth(), frame.getHeight());
+					camera = new Camera(this.getWidth(), this.getHeight(), 5000, 5000);
 				}
 
 			} catch (GameException err) {
@@ -95,6 +104,8 @@ public class Client extends JPanel {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		frame.addKeyListener(keyManager);
+
 	}
 
 	public void update() {
@@ -116,9 +127,24 @@ public class Client extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
+
+		Player p = game.getPlayer();
+		camera.update(p.getxPos(), p.getyPos());
+
+		int xPos = camera.getxPos();
+		int yPos = camera.getyPos();
+
+		g2.translate(-xPos, -yPos);
+
+		if (gameScreen != null) {
+			gameScreen.render(g);
+		}
+
 		if (game != null) {
 			game.render(g2);
 		}
+
+		g2.translate(xPos, yPos);
 	}
 
 	public void setTitle(String title) {

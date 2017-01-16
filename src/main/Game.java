@@ -94,7 +94,7 @@ public class Game implements Runnable {
 		try {
 			while (true) {
 				KeyManager km = client.getKeyManager();
-				long start = System.nanoTime();
+				//				long start = System.nanoTime();
 				PacketBuilder pb = new PacketBuilder(new byte[64]);
 				pb.writeByte((byte) 02);
 				pb.writeShort((short) km.getKeys().size());
@@ -106,8 +106,8 @@ public class Game implements Runnable {
 				this.sendData(data);
 
 				int size = (int) this.readData()[0];
-				long end = System.nanoTime();
-				System.out.println("Took: " + ((end - start) / 1000000) + "ms " + " to send " + data.length + " bytes");
+				//				long end = System.nanoTime();
+				//System.out.println("Took: " + ((end - start) / 1000000) + "ms " + " to send " + data.length + " bytes");
 
 				for (int i = 0; i < size; i++) {
 					PacketReader pr = new PacketReader(this.readData());
@@ -134,7 +134,10 @@ public class Game implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
 
+	public Player getPlayer() {
+		return players.get(gameSocket.getLocalPort());
 	}
 
 	public byte[] readData() throws IOException {
