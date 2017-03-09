@@ -43,6 +43,14 @@ public class Texture extends Drawable {
 		return this.image;
 	}
 
+	public static Texture getType(Texture[] textures, char type) {
+		switch (type) {
+		case '.':
+			return textures[1];
+		}
+		return null;
+	}
+
 	public static void renderTiles(Texture tile, int count, int startX, int startY, int dir, Graphics g) {
 		int xPos = startX;
 		int yPos = startY;

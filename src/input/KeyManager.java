@@ -57,7 +57,7 @@ public class KeyManager implements KeyListener {
 		if (!keys.contains(new Integer(keyCode))) {
 			keys.add(new Integer(keyCode));
 		}
-		System.out.println(keys.toString());
+		//System.out.println(keys.toString());
 	}
 
 	/**

@@ -7,16 +7,16 @@ import graphics.Texture;
 
 public class TextureLoader {
 
-	private static RandomAccessFile indexFile, dataFile;
 	public static Texture[] textures;
+
 	public static Texture[] getTextures() {
 		return textures;
 	}
 
 	public static Texture[] loadTextures() {
 		try {
-			indexFile = new RandomAccessFile("Textures.idx", "rw");
-			dataFile = new RandomAccessFile("Textures.dat", "rw");
+			RandomAccessFile indexFile = new RandomAccessFile("Textures.idx", "rw");
+			RandomAccessFile dataFile = new RandomAccessFile("Textures.dat", "rw");
 			int length = indexFile.readInt();
 			textures = new Texture[length];
 
@@ -29,7 +29,10 @@ public class TextureLoader {
 				textures[i] = new Texture(data, name);
 				System.out.println("Loaded: " + i + " " + name);
 			}
-			
+
+			indexFile.close();
+			dataFile.close();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -18,7 +18,7 @@ import net.PacketReader;
 /**
  * Authenticates user to server and simultaneously shares the data to be
  * rendered across the {@link Client} class
- * 
+ *
  * @author Ambrose
  */
 
@@ -34,6 +34,7 @@ public class Game implements Runnable {
 	private final int PORT = 7777;
 	protected String username;
 
+	public static final int FPS = 30;
 	private Client client;
 
 	protected HashMap<Integer, Player> players;
@@ -50,6 +51,7 @@ public class Game implements Runnable {
 		int timeout = 1;
 		while (timeout != 8) {
 			try {
+				//address = InetAddress.getByName("174.117.225.193");
 				address = InetAddress.getByName("localhost");
 				gameSocket = new DatagramSocket();
 				gameSocket.setSoTimeout(3000);
@@ -66,8 +68,12 @@ public class Game implements Runnable {
 				this.username = username;
 				this.myPlayer = new Player();
 				this.players = new HashMap<>();
+				this.myPlayer = new Player(0, 0);
+				this.players.put(gameSocket.getLocalPort(), this.myPlayer);
 				this.isActive = true;
+
 				new Thread(this).start();
+				gameSocket.setSoTimeout(0);
 				break;
 
 			} catch (UnknownHostException e) {
@@ -81,6 +87,9 @@ public class Game implements Runnable {
 		if (timeout == 8) {
 			client.setTitle("Zombies Login");
 			throw new GameException(Error.RESPONSE_ERROR);
+		} else {
+			client.setTitle("Zombies");
+
 		}
 
 	}
@@ -91,53 +100,27 @@ public class Game implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			while (true) {
-				KeyManager km = client.getKeyManager();
-				//				long start = System.nanoTime();
-				PacketBuilder pb = new PacketBuilder(new byte[64]);
-				pb.writeByte((byte) 02);
-				pb.writeShort((short) km.getKeys().size());
-				for (Integer i : km.getKeys()) {
-					pb.writeShort((short) i.intValue());
-				}
+		while (isActive) {
 
-				byte[] data = pb.getData();
-				this.sendData(data);
+			long time = System.currentTimeMillis();
 
-				int size = (int) this.readData()[0];
-				//				long end = System.nanoTime();
-				//System.out.println("Took: " + ((end - start) / 1000000) + "ms " + " to send " + data.length + " bytes");
+			update();
+			draw();
 
-				for (int i = 0; i < size; i++) {
-					PacketReader pr = new PacketReader(this.readData());
-					int port = pr.readInt();
-					int xPos = (int) pr.readShort();
-					int yPos = (int) pr.readShort();
+			time = (1000 / FPS) - (System.currentTimeMillis() - time);
 
-					if (!getPlayers().containsKey(new Integer(port))) {
-						getPlayers().put(port, new Player(xPos, yPos));
-						continue;
-					}
-
-					getPlayers().get(port).setPosition(xPos, yPos);
-				}
-
-				client.update();
-
+			if (time > 0) {
 				try {
-					Thread.sleep(15);
-				} catch (InterruptedException e) {
+					Thread.sleep(time);
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
 	public Player getPlayer() {
-		return players.get(gameSocket.getLocalPort());
+		return myPlayer;
 	}
 
 	public byte[] readData() throws IOException {
@@ -156,6 +139,49 @@ public class Game implements Runnable {
 		}
 		serverPacket.setData(buf);
 		gameSocket.send(serverPacket);
+	}
+
+	public void update() {
+		try {
+			KeyManager km = client.getKeyManager();
+			long start = System.nanoTime();
+			PacketBuilder pb = new PacketBuilder(new byte[64]);
+			pb.writeByte((byte) 02);
+			pb.writeShort((short) km.getKeys().size());
+			for (Integer i : km.getKeys()) {
+				pb.writeShort((short) i.intValue());
+			}
+
+			byte[] data = pb.getData();
+
+			this.sendData(data);
+			int size = (int) this.readData()[0];
+			long end = System.nanoTime();
+//			System.out.println("Took: " + ((end - start) / 1000000) + "ms " + " to send " + " bytes");
+			System.out.println(client.getWidth());
+			for (int i = 0; i < size; i++) {
+				PacketReader pr = new PacketReader(this.readData());
+				int port = pr.readInt();
+				int xPos = (int) pr.readShort();
+				int yPos = (int) pr.readShort();
+
+				if (!getPlayers().containsKey(new Integer(port))) {
+					getPlayers().put(port, new Player(xPos, yPos));
+					continue;
+				}
+
+				getPlayers().get(port).setPosition(xPos, yPos);
+			}
+
+			client.update();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void draw() {
+
 	}
 
 	public Client getClient() {

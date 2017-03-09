@@ -40,7 +40,7 @@ public class Player {
 
 	public void render(Graphics g) {
 		g.setColor(Color.blue);
-		g.fillRect(xPos, yPos, 30, 30);
+		g.fillRect(xPos, yPos, 32, 32);
 	}
 
 }

@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import constants.GameConstants;
 import entity.Player;
 import exceptions.GameException;
 import graphics.Camera;
@@ -23,6 +24,7 @@ import input.KeyManager;
 public class Client extends JPanel {
 
 	private Game game;
+
 	private static final long serialVersionUID = 1L;
 
 	private JTextField txtUsername;
@@ -37,8 +39,7 @@ public class Client extends JPanel {
 
 	public Client() {
 		this.keyManager = new KeyManager();
-		//Decompressor.decompress("Textures", "Textures.idx", "Textures.dat");
-		//Decompressor.decompress("Sprites", "Sprites.idx", "Sprites.dat");
+		//Decompressor.decompress("Sprites", "Sprites.idx", "Sprites.dat");		txtUsername = new JTextField(15);
 		txtUsername = new JTextField(15);
 		txtUsername.setPreferredSize(new Dimension(150, 30));
 		txtUsername.setMargin(new Insets(5, 5, 5, 5));
@@ -55,8 +56,9 @@ public class Client extends JPanel {
 			try {
 				game = new Game(getUsername(), getPassword(), this);
 				if (game.isActive) {
+					frame.dispose();
 					frame.setContentPane(this);
-					frame.setSize(450 * 2, 300 * 2);
+					frame.setSize(GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT);
 					frame.setLocationRelativeTo(null);
 					frame.validate();
 					frame.repaint();
@@ -64,9 +66,8 @@ public class Client extends JPanel {
 					frame.setState(JFrame.NORMAL);
 					frame.setVisible(true);
 					gameScreen = new GameScreen(frame.getWidth(), frame.getHeight());
-					camera = new Camera(this.getWidth(), this.getHeight(), 5000, 5000);
+					camera = new Camera(GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT);
 				}
-
 			} catch (GameException err) {
 				err.displayError();
 			}
@@ -131,12 +132,14 @@ public class Client extends JPanel {
 		Player p = game.getPlayer();
 		camera.update(p.getxPos(), p.getyPos());
 
-		int xPos = camera.getxPos();
-		int yPos = camera.getyPos();
+		float xPos = camera.getxPos();
+		float yPos = camera.getyPos();
 
 		g2.translate(-xPos, -yPos);
 
 		if (gameScreen != null) {
+			gameScreen.setCameraX(xPos);
+			gameScreen.setCameraY(yPos);
 			gameScreen.render(g);
 		}
 

@@ -1,20 +1,18 @@
 package graphics;
 
+import constants.GameConstants;
+
 public class Camera {
-	protected int xPos;
-	protected int yPos;
+	protected float xPos;
+	protected float yPos;
 	protected int screenWidth;
 	protected int screenHeight;
-	protected int gameWidth;
-	protected int gameHeight;
 
-	public Camera(int screenWidth, int screenHeight, int gameWidth, int gameHeight) {
+	public Camera(int screenWidth, int screenHeight) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
-		this.gameHeight = gameHeight;
-		this.gameWidth = gameWidth;
-		this.xPos = 0;
-		this.yPos = 0;
+		this.xPos = 0F;
+		this.yPos = 0F;
 	}
 
 	public int getScreenWidth() {
@@ -33,54 +31,37 @@ public class Camera {
 		this.screenHeight = screenHeight;
 	}
 
-	public int getGameWidth() {
-		return gameWidth;
-	}
-
-	public void setGameWidth(int gameWidth) {
-		this.gameWidth = gameWidth;
-	}
-
-	public int getGameHeight() {
-		return gameHeight;
-	}
-
-	public void setGameHeight(int gameHeight) {
-		this.gameHeight = gameHeight;
-	}
-
-	public int getxPos() {
+	public float getxPos() {
 		return xPos;
 	}
 
-	public void setxPos(int xPos) {
-		this.xPos = xPos;
-	}
-
-	public int getyPos() {
+	public float getyPos() {
 		return yPos;
 	}
 
-	public void setyPos(int yPos) {
-		this.yPos = yPos;
-	}
-
 	public void update(int playerX, int playerY) {
-		if (this.xPos < 0) {
-			this.xPos = 0;
-		}
-		if (this.yPos < 0) {
-			this.yPos = 0;
-		}
-		if (this.xPos > this.gameWidth - screenWidth) {
-			this.xPos = this.gameWidth - screenWidth;
-		}
-		if (this.yPos > this.gameHeight - screenHeight) {
-			this.yPos = this.gameHeight - screenHeight;
+
+		this.xPos += (float) (((playerX - (screenWidth / 2)) - this.xPos) * 0.1);
+		this.yPos += (float) (((playerY - (screenHeight / 2)) - this.yPos) * 0.1);
+
+		System.out.printf("Player Pos: (%d, %d) - Camera Pos: (%f, %f)\n", playerX, playerY, this.xPos, this.yPos);
+
+		if (this.xPos <= GameConstants.CAMERA_PIVOT_X) {
+			this.xPos = GameConstants.CAMERA_PIVOT_X;
 		}
 
-		this.xPos = playerX - screenWidth / 2;
-		this.yPos = playerY - screenHeight / 2;
+		if (this.yPos <= GameConstants.CAMERA_PIVOT_Y) {
+			this.yPos = GameConstants.CAMERA_PIVOT_Y;
+		}
+
+		if (this.xPos > ((GameConstants.MAP_WIDTH - screenWidth) - 1)) {
+			this.xPos = ((GameConstants.MAP_WIDTH - screenWidth) - 1);
+		}
+
+		if (this.yPos > ((GameConstants.MAP_HEIGHT - screenHeight) - 1)) {
+			this.yPos = ((GameConstants.MAP_HEIGHT - screenHeight) - 1);
+		}
+
 	}
 
 }

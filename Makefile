@@ -4,5 +4,5 @@ main: src/main/*.java src/input/*.java src/graphics/*.java src/exceptions/*.java
 	javac -d bin -cp lib/*:src src/main/*.java src/input/*.java src/graphics/*.java src/exceptions/*.java src/entity/*.java src/constants/*.java
 
 
-run: 
+run:
 	java -cp lib/*:bin main.Client
